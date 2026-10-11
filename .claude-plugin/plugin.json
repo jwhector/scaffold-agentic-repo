@@ -1,0 +1,7 @@
+{
+  "name": "scaffold-agentic-repo",
+  "description": "Set a repository up for AI coding agents: a short interview, then a menu of modules (self-describing context, backlog, plans, guardrails, verify, a review-loop ship gate, cloud readiness, parallel worktrees, maintenance).",
+  "version": "2.0.0-draft",
+  "author": { "name": "jwhector" },
+  "license": "MIT"
+}

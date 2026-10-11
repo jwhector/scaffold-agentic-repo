@@ -1,0 +1,31 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  review-kit:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ["20", "22", "24"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Review-kit unit tests
+        shell: bash
+        run: node --test skills/scaffold-agentic-repo/templates/review-kit/*.test.mjs
+      - name: Eval checker and self-test parse
+        shell: bash
+        run: |
+          node --check evals/check.mjs
+          node --check skills/scaffold-agentic-repo/templates/review-kit/gate-selftest.mjs
+          node -e "JSON.parse(require('fs').readFileSync('evals/evals.json','utf8'))"

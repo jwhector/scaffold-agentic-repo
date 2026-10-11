@@ -1,0 +1,4 @@
+#!/bin/sh
+# Git hook entry (.githooks/ or .husky/). The gate itself is in
+# .agentic/scripts/pre-push.sh; keep this file to this one line.
+exec sh "$(git rev-parse --show-toplevel)/.agentic/scripts/pre-push.sh" "$@"

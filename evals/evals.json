@@ -1,0 +1,91 @@
+{
+  "skill_name": "scaffold-agentic-repo",
+  "notes": "Copy a fixture into a fresh temp directory, `git init` it with one commit, then run the prompt there. The prompts pre-answer the interview so a run can finish unattended; a separate check (interview-only) confirms the interview itself.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "light-preset-small-script",
+      "fixture": "fixtures/tiny-script",
+      "prompt": "Set this repo up for agents. I'm the only one working on it, sessions run only on my laptop, and I use Claude Code. Take your recommendations without asking me again.",
+      "expected_output": "Light preset. AGENTS.md plus a CLAUDE.md pointer; BACKLOG.md; a best-effort format-on-edit hook using ruff; workflow and maintenance folded into AGENTS.md; .agentic/config.json with preset light.",
+      "expectations": [
+        "AGENTS.md exists, is under ~60 lines, and names the run command for rename_photos.py",
+        "CLAUDE.md exists and imports AGENTS.md instead of repeating its rules",
+        "No docs/decisions/, docs/plans/, .agentic/scripts/, .githooks/pre-push or review-loop skill was created",
+        "The format-on-edit hook exits 0 when ruff is not installed",
+        ".agentic/config.json is valid JSON with preset 'light'",
+        "The final report lists the modules skipped and why"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "standard-retrofit-respects-existing-practice",
+      "fixture": "fixtures/node-app-retrofit",
+      "prompt": "Retrofit the agentic workflow onto this repo. We're a team of three on Claude Code and Codex, and some sessions run in Claude Code on the web. Use the Standard preset and the review loop; don't install any third-party tools. Take your other recommendations without asking me again.",
+      "expected_output": "Standard preset. CLAUDE.md content moved into AGENTS.md (the money and testing rules kept, the 'Current status' section dropped and mentioned in the report); GitHub Issues kept as the backlog, no BACKLOG.md; the existing husky pre-commit extended rather than replaced; review kit installed under .agentic/ with the pre-push hook chained through husky or .githooks; branch prefixes for both agents; cloud SessionStart hooks; decision 0001 recording the scaffold.",
+      "expectations": [
+        "AGENTS.md contains the 'integer cents' rule and the 'every endpoint has a test' rule",
+        "No file contains 'Working on the PDF export this sprint'; the report mentions dropping the status section",
+        "CLAUDE.md is a pointer to AGENTS.md",
+        "There is no BACKLOG.md; AGENTS.md says work is in GitHub Issues with the 'ready' label",
+        ".husky/pre-commit still runs prettier",
+        ".agentic/config.json lists agentBranchPrefixes for both claude and codex",
+        "`node --test .agentic/scripts/*.test.mjs` passes",
+        "The hook entry (.husky/pre-push) and .agentic/scripts/pre-push.sh are mode 100755 in the index, and pre-push.sh has no '{{AGENT_BRANCH_PREFIXES}}' placeholder",
+        "package.json has a `prepare` script that runs husky, and .agentic/config.json records hookManager 'husky'",
+        ".agents/skills/review-loop/SKILL.md exists, and .claude/skills/review-loop/SKILL.md only points to it",
+        ".claude/settings.json has SessionStart hooks that install dependencies only when CLAUDE_CODE_REMOTE is true, and set core.hooksPath",
+        "docs/decisions/0001-*.md records the preset, modules and the kept divergences",
+        "No seeds, mulch, no-mistakes or treehouse files or commands were added"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "full-preset-monorepo",
+      "fixture": "fixtures/monorepo",
+      "prompt": "Scaffold the full agentic workflow here. Two of us run several Claude Code sessions in parallel locally; nothing runs in the cloud. Use the CI check for the gate. Don't install treehouse; use plain git worktrees. Take your other recommendations without asking me again.",
+      "expected_output": "Full preset. Root AGENTS.md extended (not replaced) plus one AGENTS.md per package; plan template with per-step boundaries; review kit plus .github/workflows/review-loop-check.yml; parallel-sessions section using git worktree without treehouse; no cloud hooks.",
+      "expectations": [
+        "The root AGENTS.md still says 'The acme product: an API and a web app.'",
+        "packages/api/AGENTS.md and packages/web/AGENTS.md exist and only cover their package",
+        "docs/plans/TEMPLATE.md has acceptance criteria and a 'Stop and ask if' line per step",
+        ".github/workflows/review-loop-check.yml checks out the base sha, not the head",
+        "The workflow doc describes parallel sessions with git worktree and does not install treehouse",
+        "The workflow doc says a branch must be renamed to an agent prefix before pushing, with the command",
+        ".claude/settings.json has no SessionStart dependency-install hook, but does have one that turns hooks on",
+        "packages/api/CLAUDE.md and packages/web/CLAUDE.md point to their AGENTS.md",
+        "`node .agentic/scripts/gate-selftest.mjs` passes"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "standard-python-pre-commit-framework",
+      "fixture": "fixtures/python-precommit",
+      "prompt": "Set this repo up for agents with the Standard preset and the review loop. I use Claude Code, locally only. Don't install any third-party tools. Take your other recommendations without asking me again.",
+      "expected_output": "Standard preset. The existing pre-commit framework is kept as the hook manager: a local pre-push hook is added to .pre-commit-config.yaml that runs loop-gate.mjs --pre-commit; the ruff hooks stay. No .githooks/ or .husky/ entry. .pre-commit-config.yaml gains default_install_hook_types for both stages, so the README's existing `pre-commit install` turns the gate on. Review kit under .agentic/.",
+      "expectations": [
+        ".pre-commit-config.yaml keeps the ruff hooks and gains a local pre-push hook running `node .agentic/scripts/loop-gate.mjs --pre-commit`",
+        ".agentic/config.json records hookManager 'pre-commit'",
+        "No .githooks/pre-push or .husky/pre-push was created",
+        ".agentic/scripts/pre-push.sh is mode 100755 and has its prefixes filled in",
+        "AGENTS.md tells a new clone to run `pre-commit install`, and .pre-commit-config.yaml has default_install_hook_types covering pre-push",
+        "`node --test .agentic/scripts/*.test.mjs` passes",
+        "The report notes that pytest/ruff could not be run if dependencies were not installed, as pre-existing"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "interview-only",
+      "fixture": "fixtures/node-app-retrofit",
+      "prompt": "Set this repo up for agents.",
+      "expected_output": "No files written. One message: what was detected, a recommended preset, settings with recommended values, a file plan, and a question asking whether to go ahead. Asks whether sessions run in the cloud.",
+      "expectations": [
+        "No files in the repo were created or modified",
+        "The message recommends a preset and gives a reason",
+        "The message proposes keeping GitHub Issues and the husky hook",
+        "The message asks where sessions run (local, cloud, or both)",
+        "Any third-party tool mentioned comes with what it installs and whether it sends telemetry"
+      ]
+    }
+  ]
+}

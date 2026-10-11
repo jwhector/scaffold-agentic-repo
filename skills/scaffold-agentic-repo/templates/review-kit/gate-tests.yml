@@ -1,0 +1,25 @@
+# Runs the ship gate's own unit tests. Node skips dot-directories by default,
+# so these need an explicit step; add this step to the repo's existing CI
+# workflow instead if it has one.
+#
+# Installed by scaffold-agentic-repo (templates/review-kit).
+name: gate-tests
+
+on:
+  push:
+    paths: [".agentic/**"]
+  pull_request:
+    paths: [".agentic/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: node --test .agentic/scripts/*.test.mjs

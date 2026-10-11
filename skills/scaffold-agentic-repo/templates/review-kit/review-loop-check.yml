@@ -1,0 +1,46 @@
+# Confirms on every PR that the review loop ran over the head and nothing that
+# changes code came after its summary. It fails closed, so it also catches
+# commits a person added later and pushes made with --no-verify. Non-agent and
+# data-only PRs pass with "no loop expected".
+#
+# This reviews nothing itself. The review happens in the session, where
+# findings get fixed (see .agents/skills/review-loop/SKILL.md).
+#
+# Installed by scaffold-agentic-repo (templates/review-kit).
+name: review-loop-check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  loop-gate:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the BASE and run its copy of the gate, so a PR cannot edit
+      # the script or its settings to pass itself. The head is fetched only
+      # as data to judge.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Check the review-loop summary
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          git fetch --quiet origin "refs/pull/$PR/head"
+          if [ ! -f .agentic/scripts/loop-gate.mjs ]; then
+            echo "The base has no loop gate yet (first install); nothing to check."
+            exit 0
+          fi
+          node .agentic/scripts/loop-gate.mjs --check \
+            --head "$HEAD_SHA" --branch "$HEAD_REF" --base "origin/$BASE_REF"
