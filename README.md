@@ -15,6 +15,43 @@ It follows the open [Agent Skills](https://agentskills.io) format, so it
 works in Claude Code, Codex, Gemini CLI, GitHub Copilot, Cursor and other
 agents that read `SKILL.md`.
 
+## Before you run it
+
+You don't have to trust this blindly, and you shouldn't. Three ways to look
+first, in increasing order of effort:
+
+1. **Read it.** The whole skill is Markdown plus three small Node scripts:
+   [SKILL.md](skills/scaffold-agentic-repo/SKILL.md) is the procedure,
+   [references/](skills/scaffold-agentic-repo/references/) holds the
+   reasoning and one file per module, and
+   [templates/](skills/scaffold-agentic-repo/templates/) is exactly what gets
+   copied into your repo. Nothing else is installed: no daemon, no background
+   process, no network calls of its own.
+2. **Have your own agent review it.** Open your repo, give your agent this
+   repo's URL (or a clone of it), and paste:
+
+   > Read the skill at `skills/scaffold-agentic-repo/` in that repo: `SKILL.md`,
+   > everything in `references/`, and the files in `templates/`. Do not run
+   > it. Then tell me:
+   > 1. In plain terms, what it would do to this repo: every file it would
+   >    create or change, and which of those are optional.
+   > 2. What runs on my machine afterwards and when (git hooks, agent hooks,
+   >    CI), and what each one can block.
+   > 3. Anything that sends data anywhere, including the third-party tools it
+   >    can offer.
+   > 4. How it compares with how I work now: what I already have that it
+   >    would keep, what it would replace, and what it adds that I'd have no
+   >    equivalent for.
+   > 5. The three things in it you'd push back on, and why.
+
+3. **Run it and say no.** The skill writes nothing until you confirm. Its
+   first reply is what it found, a recommended preset, every setting, and the
+   list of files it would create or change, ending with a question. Answer
+   "no" and your repo is untouched; the plan is yours to keep.
+
+If you find something you'd push back on, open an issue. Disagreement with
+the defaults is useful; that's why they're modules.
+
 ## Install
 
 With the [skills CLI](https://skills.sh/docs/cli), for whichever agents you
